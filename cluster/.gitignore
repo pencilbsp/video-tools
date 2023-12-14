@@ -52,7 +52,7 @@ bower_components
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 
-build/Release
+build
 
 # Dependency directories
 
@@ -173,3 +173,6 @@ dist
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# Cookies
+cookie.json
