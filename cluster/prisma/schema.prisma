@@ -1,0 +1,197 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String  @db.ObjectId
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+  oauth_token_secret String?
+  oauth_token        String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String?    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  logos         Logo[]
+  videos        Video[]
+  accounts      Account[]
+  sessions      Session[]
+  subtitles     Subtitle[]
+  cookies       Cookie[]
+  clusters      Cluster[]
+}
+
+model File {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  path        String
+  name        String
+  size        Int
+  mimeType    String
+  ext         String?
+  logos       Logo[]
+  subtitles   Subtitle[]
+  md5Checksum String     @unique
+  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime   @default(now())
+}
+
+enum LogoPosition {
+  center
+  topLeft
+  topRight
+  bottomLeft
+  bottomRight
+}
+
+model Logo {
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  file      File         @relation(fields: [fileId], references: [id])
+  fileId    String       @db.ObjectId
+  user      User         @relation(fields: [fileId], references: [id])
+  userId    String       @db.ObjectId
+  scale     Int          @default(1)
+  scaleMode String?
+  width     Int?
+  height    Int?
+  videos    Video[]
+  offsetX   Int          @default(0)
+  offsetY   Int          @default(0)
+  position  LogoPosition @default(topLeft)
+  updatedAt DateTime     @updatedAt
+  createdAt DateTime     @default(now())
+}
+
+// model Style {
+//   id        String   @id @default(auto()) @map("_id") @db.ObjectId
+//   name      String
+//   file      File     @relation(fields: [fileId], references: [id])
+//   fileId    String   @db.ObjectId
+//   user      User     @relation(fields: [fileId], references: [id])
+//   userId    String   @db.ObjectId
+//   options   Json?
+//   videos    Video[]
+//   updatedAt DateTime @updatedAt
+//   createdAt DateTime @default(now())
+// }
+
+model Subtitle {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  text          String
+  isStyle       Boolean  @default(false)
+  file          File     @relation(fields: [fileId], references: [id])
+  fileId        String   @db.ObjectId
+  user          User     @relation(fields: [fileId], references: [id])
+  userId        String   @db.ObjectId
+  options       Json?
+  videoStyle    Video[]  @relation(name: "videoStyle")
+  videoSubtitle Video[]  @relation(name: "videoSubtitle")
+  updatedAt     DateTime @updatedAt
+  createdAt     DateTime @default(now())
+}
+
+enum VideoStatus {
+  pending
+  downloading
+  downloaded
+  encoding
+  muxed
+  uploading
+  paused
+  canceled
+  done
+  error
+}
+
+model Video {
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  vid            String
+  status         VideoStatus @default(pending)
+  percent        Int         @default(0)
+  name           String
+  options        Json
+  logs           Json[]
+  nativeUrl      String
+  message        String?
+  paths          Json?
+  supportActions Boolean?    @default(false)
+  user           User        @relation(fields: [userId], references: [id])
+  style          Subtitle?   @relation(fields: [styleId], references: [id], name: "videoStyle")
+  styleId        String?     @db.ObjectId
+  subtitle       Subtitle?   @relation(fields: [subtitleId], references: [id], name: "videoSubtitle")
+  subtitleId     String?     @db.ObjectId
+  logo           Logo?       @relation(fields: [logoId], references: [id])
+  logoId         String?     @db.ObjectId
+  cookie         Cookie?     @relation(fields: [cookieId], references: [id])
+  cookieId       String?     @db.ObjectId
+  cluster        Cluster?    @relation(fields: [clusterId], references: [id])
+  clusterId      String?     @db.ObjectId
+  userId         String      @db.ObjectId
+  updatedAt      DateTime    @updatedAt
+  createdAt      DateTime    @default(now())
+}
+
+model Cookie {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  site      String
+  name      String?
+  values    Json[]
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @db.ObjectId
+  videos    Video[]
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model Cluster {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  platform  String
+  ffmpeg    String
+  processor String
+  host      String
+  port      Int
+  isPublic  Boolean  @default(false)
+  serial    String   @unique
+  password  String?
+  user      User     @relation(fields: [userId], references: [id])
+  videos    Video[]
+  userId    String   @db.ObjectId
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
