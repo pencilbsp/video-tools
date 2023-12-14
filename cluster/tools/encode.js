@@ -4,7 +4,7 @@ import prisma from "../libs/prisma.js"
 import FFmpeg from "../libs/ffmpeg.js"
 import { getServerFile } from "../libs/file.js"
 import { mergeStyle, toAssSubtitle } from "../libs/subtitle.js"
-import { ASSETS_PATH, MAX_DOWNLOAD_TASK, TMP_DIR, getClusterSerial } from "../configs.js"
+import { ASSETS_PATH, MAX_DOWNLOAD_TASK, VIDEO_DIR, getClusterSerial } from "../configs.js"
 
 const TAG = "[ENCODE_TASK]"
 export const DEFAULT_INTERVAL_TIME = 10 * 1000 // 10
@@ -101,8 +101,8 @@ class EncodeTask {
 
       if (status === "encoding") {
         const options = { subtitle: {} }
-        const videoDir = join(TMP_DIR, video.id)
-        const videoPath = join(TMP_DIR, video.paths.video)
+        const videoDir = join(VIDEO_DIR, video.id)
+        const videoPath = join(VIDEO_DIR, video.paths.video)
 
         const { dir, name } = parse(videoPath)
         const videoMuxedPath = join(dir, `${name}_muxed.mp4`)
@@ -115,7 +115,7 @@ class EncodeTask {
 
         // Thêm phụ đề vào tuỳ chọn
         if (video.paths.subtitle) {
-          const subtitlePath = join(TMP_DIR, video.paths.subtitle)
+          const subtitlePath = join(VIDEO_DIR, video.paths.subtitle)
           options.subtitle.path = await toAssSubtitle(subtitlePath)
         }
 

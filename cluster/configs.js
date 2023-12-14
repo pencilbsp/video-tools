@@ -34,6 +34,8 @@ export const M3U8_DIR = join(PUBLIC_DIR, "m3u8")
 
 export const TMP_DIR = join(PUBLIC_DIR, "tmp")
 
+export const VIDEO_DIR = join(PUBLIC_DIR, "video")
+
 export const getClusterSerial = () => serialNumber()
 
 export const START_TIME = new Date()

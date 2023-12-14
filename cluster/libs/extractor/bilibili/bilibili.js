@@ -6,7 +6,7 @@ import FFmpeg from "../../../libs/ffmpeg.js"
 import Cookie from "../../../libs/cookie.js"
 import prisma from "../../../libs/prisma.js"
 import { downloadFile } from "../../../libs/download.js"
-import { TMP_DIR, USER_AGENT } from "../../../configs.js"
+import { VIDEO_DIR, USER_AGENT } from "../../../configs.js"
 import { QN_MAP, API_URL, BILI_LANG_CODE } from "./helper.js"
 
 const platform = "web"
@@ -58,7 +58,7 @@ export default async function biliExtract(_video, progressCallback) {
 
   let subtitle = data.data["video_subtitle"].find((subtitle) => (subtitle["lang_key"] = subtitleLang))
 
-  const videoDir = join(TMP_DIR, _video.id)
+  const videoDir = join(VIDEO_DIR, _video.id)
   const videoName = slug(_video.name, { replacement: "." })
   let subType = ["srt", "ass"].includes(options.subtitleType) ? options.subtitleType : "srt"
 
@@ -68,7 +68,7 @@ export default async function biliExtract(_video, progressCallback) {
     const subtitleName = `${videoName}.${subtitleLang}.${subType}`
     const subtitlePath = join(videoDir, subtitleName)
     await downloadFile(subtitle.url, subtitlePath)
-    subtitle.path = subtitlePath.replace(TMP_DIR, "")
+    subtitle.path = subtitlePath.replace(VIDEO_DIR, "")
   }
 
   const qualityName = getFileName(QN_MAP, quality)

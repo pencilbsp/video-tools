@@ -7,7 +7,7 @@ import { readFile, unlink } from "fs/promises"
 
 import { downloadFile } from "./download.js"
 import ffmpegProcessing from "./processing.js"
-import { ASSETS_PATH, SERVER_URL, TMP_DIR } from "../configs.js"
+import { ASSETS_PATH, SERVER_URL, VIDEO_DIR } from "../configs.js"
 
 function timeToSeconds(timeString) {
   const parts = timeString.split(":")
@@ -228,7 +228,7 @@ export default class FFmpeg extends EventEmitter {
         .on("start", this.#handleStart)
         .on("progress", this.#handleProgress)
         // .crf(20)
-        .mergeToFile(this.outputFile, TMP_DIR)
+        .mergeToFile(this.outputFile, VIDEO_DIR)
     })
   }
 

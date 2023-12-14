@@ -7,7 +7,7 @@ import prisma from "../../../libs/prisma.js"
 import Cookie from "../../../libs/cookie.js"
 import FFmpeg from "../../../libs/ffmpeg.js"
 import { downloadFile } from "../../../libs/download.js"
-import { TMP_DIR, USER_AGENT } from "../../../configs.js"
+import { VIDEO_DIR, USER_AGENT } from "../../../configs.js"
 import { isWetv, getCKey, DEFN_LIST, generateGuid, WETV_LANG_CODE as LANG_CODE, getVideoQuality } from "./helper.js"
 
 export default async function wetvExtract(_video, progressCallback) {
@@ -113,7 +113,7 @@ export default async function wetvExtract(_video, progressCallback) {
   const video = { ...videoQuality.video, sources, duration }
 
   // Tạo thư mục lưu trữ video
-  const videoDir = join(TMP_DIR, _video.id)
+  const videoDir = join(VIDEO_DIR, _video.id)
   if (!existsSync(videoDir)) await mkdir(videoDir)
 
   const fileName = slug(_video.name ?? _video.id, { replacement: "." })
@@ -124,7 +124,7 @@ export default async function wetvExtract(_video, progressCallback) {
     const subtitleName = `${fileName}.${subtitle.code}.${subtitleExt}`
     const subtitlePath = join(videoDir, subtitleName)
     await downloadFile(subtitle.url.replace(".m3u8?ver=4", ""), subtitlePath)
-    Object.assign(subtitle, { path: subtitlePath.replace(TMP_DIR, "") })
+    Object.assign(subtitle, { path: subtitlePath.replace(VIDEO_DIR, "") })
   }
 
   const qualityName = Object.keys(DEFN_LIST)[Object.values(DEFN_LIST).indexOf(defn)]
@@ -141,7 +141,7 @@ export default async function wetvExtract(_video, progressCallback) {
   })
 
   await ffmpeg.start(videoPath)
-  Object.assign(video, { path: videoPath.replace(TMP_DIR, "") })
+  Object.assign(video, { path: videoPath.replace(VIDEO_DIR, "") })
   await prisma.video.update({ where: { id: _video.id }, data: { supportActions: false } })
 
   return { video, subtitle }
