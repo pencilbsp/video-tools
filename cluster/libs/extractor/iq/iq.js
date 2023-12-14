@@ -7,7 +7,7 @@ import cmd5x from "./cmd5x.m.js"
 import Cookie from "../../../libs/cookie.js"
 import prisma from "../../../libs/prisma.js"
 import { getNextScript } from "../../../libs/dom.js"
-import { M3U8_DIR, TMP_DIR, USER_AGENT } from "../../../configs.js"
+import { M3U8_DIR, VIDEO_DIR, USER_AGENT } from "../../../configs.js"
 import {
   getFT,
   getUid,
@@ -53,10 +53,13 @@ export default async function iqExtract(_video, progressCallback) {
 
   const response = await fetch(url, { headers })
   const body = await response.text()
-
   const nextScript = getNextScript(body)
+
   const pageProps = nextScript.props?.initialProps.pageProps || {}
-  const { tvid, program, dstl } = pageProps.prePlayerData.dash.data || {}
+  const data = pageProps.prePlayerData.dash.data || {}
+  if (data["boss_ts"].msg) throw new Error(data["boss_ts"].msg)
+
+  const { tvid, program, dstl } = data
 
   const tm = Date.now()
   const uid = getUid(cookie)
@@ -148,7 +151,7 @@ export default async function iqExtract(_video, progressCallback) {
   if (!video.m3u8) video = await fetchM3U8(video, headers)
 
   // Tạo thư mục lưu trữ video
-  const videoDir = join(TMP_DIR, _video.id)
+  const videoDir = join(VIDEO_DIR, _video.id)
   if (!existsSync(videoDir)) await mkdir(videoDir)
 
   const fileName = slug(_video.name ?? _video.id, { replacement: "." })
@@ -159,7 +162,7 @@ export default async function iqExtract(_video, progressCallback) {
     const subtitleName = `${fileName}.${subtitle.code}.${subtitleExt}`
     const subtitlePath = join(videoDir, subtitleName)
     await downloadFile(dstl + subtitle.url, subtitlePath)
-    Object.assign(subtitle, { path: subtitlePath.replace(TMP_DIR, "") })
+    Object.assign(subtitle, { path: subtitlePath.replace(VIDEO_DIR, "") })
   }
 
   // Đặt tên cho video
@@ -197,7 +200,7 @@ export default async function iqExtract(_video, progressCallback) {
     await prisma.video.update({ where: { id: _video.id }, data: { supportActions: false } })
   }
 
-  Object.assign(video, { path: videoPath.replace(TMP_DIR, "") })
+  Object.assign(video, { path: videoPath.replace(VIDEO_DIR, "") })
 
   return { video, subtitle }
 }
