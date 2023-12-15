@@ -5,6 +5,7 @@ import { unlink } from "fs/promises"
 import FFmpeg from "../../../libs/ffmpeg.js"
 import Cookie from "../../../libs/cookie.js"
 import prisma from "../../../libs/prisma.js"
+import { jsonToSrt } from "../../../libs/subtitle.js"
 import { downloadFile } from "../../../libs/download.js"
 import { VIDEO_DIR, USER_AGENT } from "../../../configs.js"
 import { QN_MAP, API_URL, BILI_LANG_CODE } from "./helper.js"
@@ -60,14 +61,21 @@ export default async function biliExtract(_video, progressCallback) {
 
   const videoDir = join(VIDEO_DIR, _video.id)
   const videoName = slug(_video.name, { replacement: "." })
-  let subType = ["srt", "ass"].includes(options.subtitleType) ? options.subtitleType : "srt"
+  let subType = ["srt", "ass"].includes(options.subtitleType) ? options.subtitleType : "ass"
 
   if (subtitle) {
     if (!subtitle[subType]) subType = Object.keys(subtitle).find((key) => subtitle[key]?.url)
     subtitle = subtitle[subType]
+
     const subtitleName = `${videoName}.${subtitleLang}.${subType}`
     const subtitlePath = join(videoDir, subtitleName)
-    await downloadFile(subtitle.url, subtitlePath)
+
+    if (subType === "srt") {
+      await jsonToSrt(subtitle.url, subtitlePath)
+    } else {
+      await downloadFile(subtitle.url, subtitlePath)
+    }
+
     subtitle.path = subtitlePath.replace(VIDEO_DIR, "")
   }
 

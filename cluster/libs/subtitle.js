@@ -128,3 +128,33 @@ export async function mergeStyle(stylePath, subtitlePath, styleName) {
 
   await writeFile(subtitlePath, subtitle.toString())
 }
+
+function secToTimer(sec) {
+  let o = new Date(0)
+  let p = new Date(sec * 1000)
+  return new Date(p.getTime() - o.getTime()).toISOString().split("T")[1].split("Z")[0]
+}
+
+export async function jsonToSrt(url, subtitlePath, headers = {}) {
+  // const jsonContent = await readFile(subtitlePath, "utf-8")
+  // const jsonSubtitle = JSON.parse(jsonContent)
+  const response = await fetch(url, { headers })
+  const jsonSubtitle = await response.json()
+
+  let srtContent = ""
+  jsonSubtitle.body.forEach((line, index) => {
+    // Get start time
+    const from = secToTimer(line.from !== undefined ? line.from : 0)
+    // Get end time
+    const to = secToTimer(line.to)
+    // Line
+    srtContent += index + 1 + "\n"
+    // Time
+    srtContent += `${from.replace(".", ",")} --> ${to.replace(".", ",")}\n`
+    // Content
+    srtContent += line.content + "\n\n"
+  })
+
+  await writeFile(subtitlePath, srtContent)
+  return subtitlePath
+}
