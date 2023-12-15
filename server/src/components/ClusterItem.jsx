@@ -151,10 +151,13 @@ export default function ClusterItem({ cluster, mutate }) {
       <Stack mt={2} spacing={1}>
         <Typography variant="caption">Uptime: {formatDistanceToNow(status.uptime)}</Typography>
         <Stack direction="row" justifyContent="space-between">
-          <Typography sx={{ display: "flex", alignItems: "center" }}>
-            <MemoryIcon sx={{ width: 20, height: 20, mr: 0.75 }} />
-            {cluster.processor} | ffmpeg {cluster.ffmpeg}
-          </Typography>
+          <Stack direction="row" minWidth={0} spacing={0.75} alignItems="center">
+            <MemoryIcon sx={{ width: 20, height: 20 }} />
+            <Typography noWrap>{cluster.processor}</Typography>
+            <Typography noWrap minWidth="max-content">
+              ffmpeg {cluster.ffmpeg}
+            </Typography>
+          </Stack>
           {cluster.password && <LockIcon sx={{ width: 20, height: 20 }} />}
         </Stack>
       </Stack>
