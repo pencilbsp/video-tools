@@ -31,8 +31,7 @@ const ClusterSelectItem = forwardRef(({ cluster, value, onChange, onVerify }, re
       onClick={handleSelect}
       variants={{ tap: { scale: 0.98 } }}
       sx={{
-        p: 3,
-        pr: 2,
+        p: 2,
         width: 1,
         border: 2,
         cursor: "pointer",
@@ -49,11 +48,14 @@ const ClusterSelectItem = forwardRef(({ cluster, value, onChange, onVerify }, re
           <Typography variant="caption">{cluster.serial}</Typography>
         </Stack>
       </Stack>
-      <Stack mt={3} direction="row" justifyContent="space-between">
-        <Typography sx={{ display: "flex", alignItems: "center" }}>
-          <MemoryIcon sx={{ width: 20, height: 20, mr: 0.75 }} />
-          {cluster.processor} | ffmpeg {cluster.ffmpeg}
-        </Typography>
+      <Stack mt={3} direction="row" justifyContent="space-between" spacing={1}>
+        <Stack direction="row" minWidth={0} spacing={0.75} alignItems="center">
+          <MemoryIcon sx={{ width: 20, height: 20 }} />
+          <Typography noWrap>{cluster.processor}</Typography>
+          <Typography noWrap minWidth="max-content">
+            ffmpeg {cluster.ffmpeg}
+          </Typography>
+        </Stack>
         {cluster.password && <LockIcon sx={{ width: 20, height: 20 }} />}
       </Stack>
     </Card>
