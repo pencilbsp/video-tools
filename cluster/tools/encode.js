@@ -4,10 +4,33 @@ import prisma from "../libs/prisma.js"
 import FFmpeg from "../libs/ffmpeg.js"
 import { getServerFile } from "../libs/file.js"
 import { mergeStyle, toAssSubtitle } from "../libs/subtitle.js"
-import { ASSETS_PATH, MAX_DOWNLOAD_TASK, VIDEO_DIR, getClusterSerial } from "../configs.js"
+import { ASSETS_PATH, MAX_ENCODE_TASK, VIDEO_DIR, getClusterSerial } from "../configs.js"
 
 const TAG = "[ENCODE_TASK]"
 export const DEFAULT_INTERVAL_TIME = 10 * 1000 // 10
+
+const prismaQuery = {
+  orderBy: {
+    createdAt: "desc",
+  },
+  include: {
+    logo: {
+      include: {
+        file: true,
+      },
+    },
+    subtitle: {
+      include: {
+        file: true,
+      },
+    },
+    style: {
+      include: {
+        file: true,
+      },
+    },
+  },
+}
 
 class EncodeTask {
   io = null
@@ -17,7 +40,7 @@ class EncodeTask {
   intervalTime = 0
   status = "stoped"
   taskList = new Map()
-  MAX_ENCODE_TASK = MAX_DOWNLOAD_TASK
+  MAX_ENCODE_TASK = MAX_ENCODE_TASK
   constructor(initIntervalTime) {
     if (!initIntervalTime || initIntervalTime < DEFAULT_INTERVAL_TIME) {
       initIntervalTime = DEFAULT_INTERVAL_TIME
@@ -33,6 +56,18 @@ class EncodeTask {
     if (cluster) {
       this.clusterId = cluster.id
       this.userId = cluster.userId
+
+      await prisma.video.updateMany({
+        where: {
+          userId: this.userId,
+          clusterId: this.clusterId,
+          status: "encoding"
+        },
+        data: {
+          status: "pending",
+        },
+      })
+
       this.startEncodeTask()
     }
   }
@@ -55,36 +90,26 @@ class EncodeTask {
       // Nếu tổng số task đang hoạt động bằng MAX_ENCODE_TASK thì bỏ qua
       if (this.taskList.size === this.MAX_ENCODE_TASK) return
 
-      // Tìm kiếm video đang ở trạng thái downloaded
+      // Tìm kiếm video đang ở trạng thái downloaded được chỉ định sử lý bằng cluster này
       video = await prisma.video.findFirst({
         where: {
           userId: this.userId,
           status: "downloaded",
           clusterId: this.clusterId,
         },
-        orderBy: {
-          createdAt: "desc",
-        },
-        include: {
-          logo: {
-            include: {
-              file: true,
-            },
-          },
-          subtitle: {
-            include: {
-              file: true,
-            },
-          },
-          style: {
-            include: {
-              file: true,
-            },
-          },
-        },
+        ...prismaQuery,
       })
 
-      // Nếu không có video thì bỏ qua
+      // Nếu không có video encode các video không chỉ định cluster hoặc không có thì bỏ qua
+      if (!video)
+        video = await prisma.video.findFirst({
+          where: {
+            userId: this.userId,
+            status: "downloaded",
+          },
+          ...prismaQuery,
+        })
+
       if (!video || !video.paths) return
 
       // Thêm video vào danh sách task

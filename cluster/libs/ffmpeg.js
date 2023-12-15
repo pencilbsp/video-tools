@@ -197,7 +197,8 @@ export default class FFmpeg extends EventEmitter {
     // Add subtitle
     if (_options.subtitle) {
       // Add subtitle to ffmpeg options
-      const options = _options.subtitle.path.replace(/\\/g, "\\\\\\\\")
+      // Sửa lỗi không nhận path video trên Windows
+      const options = _options.subtitle.path.replace(/\\/g, "\\\\\\\\").replace(":", "\\\\:")
       this.filters.push({ filter: "subtitles", options, inputs, outputs: "[tmp_subtitles]" })
       inputs = "[tmp_subtitles]"
     }

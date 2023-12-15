@@ -24,6 +24,7 @@ export default async function submitVideos(videos, options) {
       let video = await prisma.video.findFirst({
         where: {
           vid: initVideo.vid,
+          userId: session.user.id,
         },
       })
 

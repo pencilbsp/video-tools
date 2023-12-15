@@ -29,6 +29,18 @@ class DownloadTask {
     if (cluster) {
       this.clusterId = cluster.id
       this.userId = cluster.userId
+
+      await prisma.video.updateMany({
+        where: {
+          userId: this.userId,
+          clusterId: this.clusterId,
+          status: "downloading",
+        },
+        data: {
+          status: "pending",
+        },
+      })
+
       this.startDownloadTask()
     }
   }
@@ -56,11 +68,23 @@ class DownloadTask {
         where: {
           status: "pending",
           userId: this.userId,
+          clusterId: this.clusterId,
         },
         orderBy: {
           createdAt: "desc",
         },
       })
+
+      if (!video)
+        video = await prisma.video.findFirst({
+          where: {
+            status: "pending",
+            userId: this.userId,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        })
 
       // Nếu không có video thì bỏ qua
       if (!video || !video.nativeUrl) return

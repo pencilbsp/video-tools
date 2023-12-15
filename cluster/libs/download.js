@@ -54,7 +54,10 @@ export const downloadFile = async (url, filePath, headers = {}, initBuffer, opti
 
     // Pipe từ ReadableStream sang WritableStream
     await reader.read().then(async function process(result) {
-      if (result.done) return
+      if (result.done) {
+        writableStream.end()
+        return
+      }
 
       loaded += result.value.length
       const currentPercent = (loaded / total) * 100
