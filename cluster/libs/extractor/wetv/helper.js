@@ -64,7 +64,7 @@ export function getCKey(videoId, url, guid, options) {
 }
 
 export function isWetv(url) {
-  return /^https:\/\/wetv\.vip(?:\/\w{2}|)\/play\/(?<cid>\w+)-.*?\/(?<vid>\w+)(?:-.*?|)/.exec(url).groups || {}
+  return /^https:\/\/wetv\.vip(?:\/\w{2}|)\/play\/(?<cid>\w+)(?:-.*?|)\/(?<vid>\w+)(?:-.*?|)/.exec(url).groups || {}
 }
 
 export function generateGuid(length) {
