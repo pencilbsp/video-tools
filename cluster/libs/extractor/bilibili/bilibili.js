@@ -109,7 +109,7 @@ export default async function biliExtract(_video, progressCallback) {
 
   if (progressCallback) progressCallback({ percent: 100 })
 
-  return { video: { ...video, path: videoMuxedPath }, subtitle }
+  return { video: { ...video, path: videoMuxedPath.replace(VIDEO_DIR, "") }, subtitle }
 }
 
 function getFileName(objName, key) {
