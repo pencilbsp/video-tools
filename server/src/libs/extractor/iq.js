@@ -32,7 +32,7 @@ export default async function iqVideoParse(url, options) {
   const videoType = initialState.play.curVideoInfo.videoType
 
   if (albumId === 0 && videoType === "singleVideo") {
-    const video = initialState.play.cachePlayList
+    const video = initialState.play.curVideoInfo
     const requireVip = video.vipInfo.isVip === 1 || video.payMark === "lock"
 
     return [
