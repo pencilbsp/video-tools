@@ -57,7 +57,7 @@ export default async function iqExtract(_video, progressCallback) {
 
   const pageProps = nextScript.props?.initialProps.pageProps || {}
   const data = pageProps.prePlayerData.dash.data || {}
-  if (data["boss_ts"].msg) throw new Error(data["boss_ts"].msg)
+  if (data["boss_ts"]?.msg) throw new Error(data["boss_ts"].msg)
 
   const { tvid, program, dstl } = data
 
