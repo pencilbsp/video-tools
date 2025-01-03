@@ -1,4 +1,4 @@
-import prisma from "./prisma.js"
+import prisma from "./prisma.js";
 
 // async function test() {
 //   try {
@@ -15,13 +15,13 @@ import prisma from "./prisma.js"
 // test()
 
 try {
-  const style = await prisma.style.textSearch({
-    where: { text: "HHTROLL" },
-    select: { id: true, name: true, file: true, userId: true },
-  })
-  console.log(style.data[0])
-  // const style  = await prisma.style.findFirst()
-  // console.log(style)
+    const style = await prisma.style.textSearch({
+        where: { text: "HHTROLL" },
+        select: { id: true, name: true, file: true, userId: true },
+    });
+    console.log(style.data[0]);
+    // const style  = await prisma.style.findFirst()
+    // console.log(style)
 } catch (error) {
-  console.log(error)
+    console.log(error);
 }

@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["crypto-js"],
-}
+    transpilePackages: ["crypto-js"],
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

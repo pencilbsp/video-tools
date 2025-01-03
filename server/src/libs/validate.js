@@ -10,7 +10,8 @@ export const IS_IQ = /^https:\/\/(?:www.|)iq\.com\/(?:play|album)\/.+$/;
 export const IS_BILIBILI = /^https:\/\/(?:www.|)bilibili\.tv(?:\/\w{2}|)\/play\/.+$/;
 export const IS_GOOGLE_DRIVE = /^https:\/\/drive\.google\.com\/(?:drive\/folders|file\/d)\/.+$/;
 export const IS_YOUKU = /^https:\/\/(?:www.|)youku\.tv\/v\/(?:v_show)\/.+$/;
-export const IS_SUPPORT_URL = /^https:\/\/(?:www.|)(?:wetv\.vip|iq\.com|drive\.google\.com|bilibili\.tv|youku\.tv)\/.+?$/;
+export const IS_SUPPORT_URL =
+    /^https:\/\/(?:www.|)(?:wetv\.vip|iq\.com|drive\.google\.com|bilibili\.tv|youku\.tv)\/.+?$/;
 
 export const isSupportUrl = (url) => IS_SUPPORT_URL.test(url);
 
@@ -96,7 +97,9 @@ export const videoSchema = yup.object().shape({
         downloadVideoQuality: yup.string(),
         rootUploadFolderId: yup.string().when("upload", (upload, schema) => {
             if (!upload[0]) return schema;
-            return schema.required("Cần có ID của thư mục Google Drive").test("len", "ID thư mục không hợp lệ", (val) => val.length > 31);
+            return schema
+                .required("Cần có ID của thư mục Google Drive")
+                .test("len", "ID thư mục không hợp lệ", (val) => val.length > 31);
         }),
         targetAudioLanguage: yup.string(),
         createUploadSubfolder: yup.boolean(),

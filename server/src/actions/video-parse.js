@@ -29,7 +29,9 @@ export default async function videoParse(url, options = {}) {
 
         const total = filteredVideos.length;
         const skip = options.skip ?? 0;
-        let withCookieVideos = filteredVideos.slice(skip, skip + 100).map((video) => ({ ...video, cookie: cookies?.[0] }));
+        let withCookieVideos = filteredVideos
+            .slice(skip, skip + 100)
+            .map((video) => ({ ...video, cookie: cookies?.[0] }));
 
         return { title, total, videoList: withCookieVideos, cookies, site };
     } catch (error) {

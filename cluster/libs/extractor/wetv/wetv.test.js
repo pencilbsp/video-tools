@@ -31,5 +31,5 @@ test(
         expect(result.subtitle.code).toBe("vi");
         expect(result.video.name).toBe(DEFN_LIST["1080P"]);
     },
-    { timeout: 30 * 60 * 1000 }
+    { timeout: 30 * 60 * 1000 },
 );

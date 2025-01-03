@@ -52,16 +52,39 @@ export default function VideoOptionsForm({ mode, tabs = defaultTabs, onDrop, coo
 
             <TabPanel value={tabs[0].id} sx={{ px: 0, pb: 0 }}>
                 <Stack spacing={1}>
-                    {mode !== "global" && <RHFTextField disabled size="small" name="nativeUrl" label="URL video" sx={{ marginBottom: "16px !important" }} />}
+                    {mode !== "global" && (
+                        <RHFTextField
+                            disabled
+                            size="small"
+                            name="nativeUrl"
+                            label="URL video"
+                            sx={{ marginBottom: "16px !important" }}
+                        />
+                    )}
 
                     {mode !== "global" ? (
-                        <RHFTextField size="small" sx={{ marginBottom: "16px !important" }} label="Tên video" name="name" />
+                        <RHFTextField
+                            size="small"
+                            sx={{ marginBottom: "16px !important" }}
+                            label="Tên video"
+                            name="name"
+                        />
                     ) : (
-                        <RHFTextField size="small" name="options.namePrefix" label="Tuỳ chỉnh tên video" sx={{ marginBottom: "16px !important" }} />
+                        <RHFTextField
+                            size="small"
+                            name="options.namePrefix"
+                            label="Tuỳ chỉnh tên video"
+                            sx={{ marginBottom: "16px !important" }}
+                        />
                     )}
 
                     {watch("options.upload") && (
-                        <RHFTextField size="small" label="ID thư mục Google Drive" name="options.rootUploadFolderId" sx={{ marginBottom: "16px !important" }} />
+                        <RHFTextField
+                            size="small"
+                            label="ID thư mục Google Drive"
+                            name="options.rootUploadFolderId"
+                            sx={{ marginBottom: "16px !important" }}
+                        />
                     )}
 
                     <RHFSelect
@@ -127,7 +150,12 @@ export default function VideoOptionsForm({ mode, tabs = defaultTabs, onDrop, coo
 
                     {/* <RHFSwitch labelPlacement="start" label="Tạo thuyết minh" name="options.createDubbing" disabled={status === "done"} /> */}
 
-                    <RHFSwitch name="options.upload" labelPlacement="start" label="Tải lên Google Drive" disabled={status === "done"} />
+                    <RHFSwitch
+                        name="options.upload"
+                        labelPlacement="start"
+                        label="Tải lên Google Drive"
+                        disabled={status === "done"}
+                    />
 
                     {watch("options.upload") && (
                         <RHFSwitch
@@ -138,7 +166,12 @@ export default function VideoOptionsForm({ mode, tabs = defaultTabs, onDrop, coo
                         />
                     )}
 
-                    <RHFSwitch labelPlacement="start" name="options.skipEncode" disabled={status === "done"} label="Bỏ qua encode/chỉ tải video" />
+                    <RHFSwitch
+                        labelPlacement="start"
+                        name="options.skipEncode"
+                        disabled={status === "done"}
+                        label="Bỏ qua encode/chỉ tải video"
+                    />
                 </Stack>
             </TabPanel>
 

@@ -25,9 +25,15 @@ export default async function youkuExtract(_video, progressCallback) {
             options.targetAudioLanguage = "guoyu";
         }
 
-        const subtitleType = SUPPORT_SUBTITLE_TYPES.includes(options.subtitleType) ? options.subtitleType : SUPPORT_SUBTITLE_TYPES[0];
-        const subCode = Object.keys(LANG_CODE).includes(options.targetSubtitleLanguage) ? options.targetSubtitleLanguage : LANG_CODE.vi;
-        const defn = Object.keys(DEFN_LIST).includes(options.downloadVideoQuality) ? DEFN_LIST[options.downloadVideoQuality] : DEFN_LIST["720P"];
+        const subtitleType = SUPPORT_SUBTITLE_TYPES.includes(options.subtitleType)
+            ? options.subtitleType
+            : SUPPORT_SUBTITLE_TYPES[0];
+        const subCode = Object.keys(LANG_CODE).includes(options.targetSubtitleLanguage)
+            ? options.targetSubtitleLanguage
+            : LANG_CODE.vi;
+        const defn = Object.keys(DEFN_LIST).includes(options.downloadVideoQuality)
+            ? DEFN_LIST[options.downloadVideoQuality]
+            : DEFN_LIST["720P"];
 
         const real = await connect({
             args: [],
@@ -46,12 +52,16 @@ export default async function youkuExtract(_video, progressCallback) {
             const cookie = await prisma.cookie.findUnique({ where: { id: _video.cookieId } });
 
             if (cookie && Array.isArray(cookie.values)) {
-                await browser.setCookie(...cookie.values.map((c) => ({ ...c, sameSite: c.sameSite === null ? "None" : c.sameSite })));
+                await browser.setCookie(
+                    ...cookie.values.map((c) => ({ ...c, sameSite: c.sameSite === null ? "None" : c.sameSite })),
+                );
             }
         }
 
         await page.goto(url, { waitUntil: "domcontentloaded" });
-        const response = await page.waitForResponse((response) => response.url().includes("mtop.youku.play.ups.appinfo.get"));
+        const response = await page.waitForResponse((response) =>
+            response.url().includes("mtop.youku.play.ups.appinfo.get"),
+        );
 
         // Xử lý dữ liệu từ response
         const data = await response.text();

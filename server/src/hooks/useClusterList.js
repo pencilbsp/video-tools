@@ -1,16 +1,16 @@
-import useSWR from "swr"
+import useSWR from "swr";
 // actions
-import { getClusters } from "@/actions/cluster"
+import { getClusters } from "@/actions/cluster";
 
-const fallbackData = { clusterList: [] }
+const fallbackData = { clusterList: [] };
 
-const fetcher = async () => getClusters()
+const fetcher = async () => getClusters();
 
 export default function useClusterList() {
-  const { data, mutate } = useSWR("clusterList", fetcher, { fallbackData })
+    const { data, mutate } = useSWR("clusterList", fetcher, { fallbackData });
 
-  return {
-    ...data,
-    mutate,
-  }
+    return {
+        ...data,
+        mutate,
+    };
 }

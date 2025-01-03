@@ -1,2 +1,2 @@
-export { default as UploadLogo } from "./UploadLogo"
-export { default as UploadSubtitle } from "./UploadSubtitle"
+export { default as UploadLogo } from "./UploadLogo";
+export { default as UploadSubtitle } from "./UploadSubtitle";

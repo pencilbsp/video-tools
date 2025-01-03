@@ -7,23 +7,23 @@ import { Switch, FormControlLabel } from "@mui/material";
 // ----------------------------------------------------------------------
 
 RHFSwitch.propTypes = {
-  name: PropTypes.string,
+    name: PropTypes.string,
 };
 
 export default function RHFSwitch({ name, ...other }) {
-  const { control } = useFormContext();
+    const { control } = useFormContext();
 
-  return (
-    <FormControlLabel
-      control={
-        <Controller
-          name={name}
-          control={control}
-          render={({ field }) => <Switch {...field} checked={field.value} />}
+    return (
+        <FormControlLabel
+            control={
+                <Controller
+                    name={name}
+                    control={control}
+                    render={({ field }) => <Switch {...field} checked={field.value} />}
+                />
+            }
+            sx={{ justifyContent: "space-between" }}
+            {...other}
         />
-      }
-      sx={{ justifyContent: "space-between" }}
-      {...other}
-    />
-  );
+    );
 }

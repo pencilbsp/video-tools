@@ -63,16 +63,20 @@ export async function extractWVKey({ license_url, pssh, cache, force }, headers 
     return data.keys;
 }
 
-export async function widevineDecrypt(videoPath, wvKey) {
+export async function widevineDecrypt(videoPath, wvKey, formatMetadata = false) {
     const decryptedVideoPath = videoPath + "_dec.mp4";
     await exec(`mp4decrypt --key ${wvKey} "${videoPath}" "${decryptedVideoPath}"`);
 
-    await exec(`ffmpeg -i "${decryptedVideoPath}" -y -map_metadata -1 -c copy ${videoPath}`);
-
-    await waiting_file_exists(decryptedVideoPath);
-
-    await unlink(videoPath);
-    return decryptedVideoPath;
+    if (formatMetadata) {
+        await exec(`ffmpeg -i "${decryptedVideoPath}" -y -map_metadata -1 -c copy ${videoPath}`);
+        await waiting_file_exists(videoPath);
+        await unlink(decryptedVideoPath);
+        return videoPath;
+    } else {
+        await waiting_file_exists(decryptedVideoPath);
+        await unlink(videoPath);
+        return decryptedVideoPath;
+    }
 }
 
 export async function mergeToFile(filePath, filePaths) {

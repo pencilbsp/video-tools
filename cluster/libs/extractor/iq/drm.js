@@ -5,7 +5,14 @@ import { basename, join, parse } from "path";
 
 import { USER_AGENT } from "@/configs.js";
 import { downloadFile } from "@/libs/download.js";
-import { extractPssh, generateChallenge, mergeToFile, mixVideoWithAudio, parsePssh, widevineDecrypt } from "@/libs/widevine.js";
+import {
+    extractPssh,
+    generateChallenge,
+    mergeToFile,
+    mixVideoWithAudio,
+    parsePssh,
+    widevineDecrypt,
+} from "@/libs/widevine.js";
 
 /**
  * Cảm ơn thông tin rất quan trọng từ
@@ -96,10 +103,8 @@ export default class IqDRM extends EventEmitter {
 
             const options = { force: true };
 
-            // const callback = ({ percent }) => this.#showProgress(`Đang tải xuống [${segmentName}]`, percent)
-
             await downloadFile(segment.url, segmentPath, {}, initCodecBuffer, options);
-            const segmentPathDec = await widevineDecrypt(segmentPath, wvKey);
+            const segmentPathDec = await widevineDecrypt(segmentPath, wvKey, true);
 
             this.count++;
             const percent = (this.count / this.totalSegment) * 100;

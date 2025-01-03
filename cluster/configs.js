@@ -25,7 +25,8 @@ export const MAX_DOWNLOAD_TASK = Number(process.env.MAX_DOWNLOAD_TASK || 2);
 
 export const ASSETS_PATH = join(ROOT_DIR, "assets");
 
-export const USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36";
+export const USER_AGENT =
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36";
 
 export const IS_WETV = /^https:\/\/wetv\.vip(?:\/\w{2}|)\/play\/.+$/;
 

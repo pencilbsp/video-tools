@@ -11,7 +11,17 @@ import FFmpeg from "@/libs/ffmpeg.js";
 import { getNextScript } from "@/libs/dom.js";
 import { downloadFile } from "@/libs/download.js";
 import { M3U8_DIR, VIDEO_DIR, USER_AGENT } from "@/configs.js";
-import { getFT, getUid, BID_TAGS, getUtList, fetchM3U8, IQ_LANG_CODE, createM3U8File, getVideoQuality, checkRequireVip } from "./init.js";
+import {
+    getFT,
+    getUid,
+    BID_TAGS,
+    getUtList,
+    fetchM3U8,
+    IQ_LANG_CODE,
+    createM3U8File,
+    getVideoQuality,
+    checkRequireVip,
+} from "./init.js";
 
 /**
  *
@@ -180,7 +190,12 @@ export default async function iqExtract(_video, progressCallback) {
             const m3u8Path = join(M3U8_DIR, _video.id + ".m3u8");
             await createM3U8File(m3u8Path, video.m3u8);
 
-            const ffmpeg = new FFmpeg(_video.id, m3u8Path, ["-protocol_whitelist file,http,https,tcp,tls,crypto"], ["-c copy"]);
+            const ffmpeg = new FFmpeg(
+                _video.id,
+                m3u8Path,
+                ["-protocol_whitelist file,http,https,tcp,tls,crypto"],
+                ["-c copy"],
+            );
             ffmpeg.setDuration(video.duration);
 
             ffmpeg.setStatus("downloading");

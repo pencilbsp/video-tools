@@ -1,16 +1,16 @@
 // sections
-import StyleTable from "@/sections/style/StyleTable"
+import StyleTable from "@/sections/style/StyleTable";
 // @mui
-import { Stack, Typography } from "@mui/material"
+import { Stack, Typography } from "@mui/material";
 
 export default async function StylePage() {
-  return (
-    <Stack spacing={3}>
-      <Typography component="h1" variant="h4">
-        Quản lý Style
-      </Typography>
+    return (
+        <Stack spacing={3}>
+            <Typography component="h1" variant="h4">
+                Quản lý Style
+            </Typography>
 
-      <StyleTable />
-    </Stack>
-  )
+            <StyleTable />
+        </Stack>
+    );
 }

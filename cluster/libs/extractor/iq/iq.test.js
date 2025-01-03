@@ -31,5 +31,5 @@ test(
         expect(result.subtitle.code).toBe("vi");
         expect(result.video.bid).toBe(BID_TAGS["720P"]);
     },
-    { timeout: 30 * 60 * 1000 }
+    { timeout: 30 * 60 * 1000 },
 );

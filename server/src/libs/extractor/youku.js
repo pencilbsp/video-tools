@@ -24,7 +24,14 @@ export default async function youkuVideoParse(url) {
         // https://www.youku.tv/v/v_show/id_
         const nativeUrl = `${url.origin}/v/v_show/id_${vid}.html`;
         const requireVip = ["VIP"].includes(video.data?.mark?.data?.text);
-        return { vid: video.data.action.value, name: video.data.title, nativeUrl, isTrailer, requireVip, duration: null };
+        return {
+            vid: video.data.action.value,
+            name: video.data.title,
+            nativeUrl,
+            isTrailer,
+            requireVip,
+            duration: null,
+        };
     });
 
     return [videoList, title];

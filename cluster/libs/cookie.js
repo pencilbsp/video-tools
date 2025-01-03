@@ -1,38 +1,38 @@
-import { existsSync } from "fs"
+import { existsSync } from "fs";
 // import { getPageCookies } from "./puppeteer"
-import { writeFile, readFile } from "fs/promises"
+import { writeFile, readFile } from "fs/promises";
 
 export default class Cookie {
-  #cookie = []
-  constructor(cookie = []) {
-    if (Array.isArray(cookie)) {
-      this.#cookie = cookie
+    #cookie = [];
+    constructor(cookie = []) {
+        if (Array.isArray(cookie)) {
+            this.#cookie = cookie;
+        }
     }
-  }
 
-  set(cookie) {
-    if (Array.isArray(cookie)) {
-      this.#cookie = cookie
+    set(cookie) {
+        if (Array.isArray(cookie)) {
+            this.#cookie = cookie;
+        }
     }
-  }
 
-  setValue(name, value) {
-    const index = this.#cookie.findIndex((cookie) => cookie.name === name)
-    if (index > -1) this.#cookie[index].value = value
-    else this.#cookie.push({ name, value, id: this.#cookie.length + 1 })
-  }
+    setValue(name, value) {
+        const index = this.#cookie.findIndex((cookie) => cookie.name === name);
+        if (index > -1) this.#cookie[index].value = value;
+        else this.#cookie.push({ name, value, id: this.#cookie.length + 1 });
+    }
 
-  getCookie() {
-    return this.cookie
-  }
+    getCookie() {
+        return this.cookie;
+    }
 
-  getValue(name, defaultValue = "") {
-    return this.#cookie.find((cookie) => cookie.name === name)?.value ?? defaultValue
-  }
+    getValue(name, defaultValue = "") {
+        return this.#cookie.find((cookie) => cookie.name === name)?.value ?? defaultValue;
+    }
 
-  toString() {
-    return this.#cookie.map(({ name, value }) => `${name}=${value}`).join("; ")
-  }
+    toString() {
+        return this.#cookie.map(({ name, value }) => `${name}=${value}`).join("; ");
+    }
 }
 
 // export async function getDefaultCookies(url, cookiePath) {

@@ -1,1 +1,1 @@
-export { default as biliExtract } from "./bilibili.js"
+export { default as biliExtract } from "./bilibili.js";
