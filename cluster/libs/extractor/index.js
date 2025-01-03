@@ -1,13 +1,15 @@
-import { iqExtract } from "./iq/index.js"
-import { wetvExtract } from "./wetv/index.js"
-import { biliExtract } from "./bilibili/index.js"
-import { IS_BILIBILI, IS_IQ, IS_WETV } from "../../configs.js"
+import { iqExtract } from "./iq/index.js";
+import { wetvExtract } from "./wetv/index.js";
+import { youkuExtract } from "./youku/index.js";
+import { biliExtract } from "./bilibili/index.js";
+import { IS_BILIBILI, IS_IQ, IS_WETV, IS_YOUKU } from "../../configs.js";
 
 export default function getExtractor(url) {
-  if (IS_IQ.test(url)) return [iqExtract, "iq.com"]
-  if (IS_WETV.test(url)) return [wetvExtract, "wetv.vip"]
-  if (IS_BILIBILI.test(url)) return [biliExtract, "bilibili.tv"]
-  // if (IS_GOOGLE_DRIVE.test(url)) return [googleDriveVideoParse, "drive.google.com"]
+    if (IS_IQ.test(url)) return [iqExtract, "iq.com"];
+    if (IS_WETV.test(url)) return [wetvExtract, "wetv.vip"];
+    if (IS_BILIBILI.test(url)) return [biliExtract, "bilibili.tv"];
+    if (IS_YOUKU.test(url)) return [youkuExtract, "youku.tv"];
+    // if (IS_GOOGLE_DRIVE.test(url)) return [googleDriveVideoParse, "drive.google.com"]
 
-  throw new Error("URL không hợp lệ hoặc không được hỗ trợ")
+    throw new Error("URL không hợp lệ hoặc không được hỗ trợ");
 }

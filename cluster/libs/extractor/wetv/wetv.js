@@ -28,7 +28,7 @@ export default async function wetvExtract(_video, progressCallback) {
   }
 
   const platform = 4830201
-  const appVersion = "2.6.9"
+  const appVersion = "2.6.22"
   const flowid = generateGuid(32)
   const timestamp = Math.floor(Date.now() / 1000)
   const guid = cookie.getValue("guid", generateGuid(32))
@@ -89,7 +89,7 @@ export default async function wetvExtract(_video, progressCallback) {
   const data = eval(text)
 
   if (!data.vl && data.msg) throw new Error(data.msg)
-
+    
   const isDRM = data.vl.vi[0].drm !== 0
   const duration = parseInt(data.vl.vi[0].td)
 
