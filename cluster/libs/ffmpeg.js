@@ -95,7 +95,6 @@ export default class FFmpeg extends EventEmitter {
     };
 
     #handleStart = (commandLine) => {
-        console.log(commandLine);
         this.commandLine = commandLine;
         this.progress.status = "processing";
         this.emit("progress", this.progress);
@@ -256,7 +255,6 @@ export default class FFmpeg extends EventEmitter {
             this.resolve = resolve;
 
             // Apply options
-            console.log(this.options, this.inputOptions);
             this.command.addOptions(this.options);
             this.command.inputOptions(this.inputOptions);
 

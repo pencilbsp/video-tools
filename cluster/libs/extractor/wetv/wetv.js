@@ -10,7 +10,7 @@ import { downloadFile } from "@/libs/download.js";
 import { VIDEO_DIR, USER_AGENT } from "@/configs.js";
 import { isWetv, getCKey, DEFN_LIST, generateGuid, WETV_LANG_CODE as LANG_CODE, getVideoQuality } from "./helper.js";
 
-export default async function wetvExtract(_video, progressCallback) {
+export default async function wetvExtract(_video, progressCallback, action = true) {
     const url = _video.nativeUrl;
     const options = _video.options;
 
@@ -85,7 +85,7 @@ export default async function wetvExtract(_video, progressCallback) {
     const response = await fetch("https://play.wetv.vip/getvinfo?" + query, { headers });
     const text = await response.text();
 
-    // let QZOutputJson = null
+    let QZOutputJson = null;
     const data = eval(text);
 
     if (!data.vl && data.msg) throw new Error(data.msg);
@@ -132,17 +132,17 @@ export default async function wetvExtract(_video, progressCallback) {
     const videoPath = join(videoDir, videoName);
 
     const ffmpeg = new FFmpeg(_video.id, sources[0], [], ["-c copy"]);
-    await prisma.video.update({ where: { id: _video.id }, data: { supportActions: true } });
+    action && (await prisma.video.update({ where: { id: _video.id }, data: { supportActions: true } }));
 
     ffmpeg.setStatus("downloading");
     ffmpeg.on("progress", (progress) => {
         // console.log("Đang tải xuống...", progress.percent)
-        if (progressCallback) progressCallback(progress);
+        if (typeof progressCallback === "function") progressCallback(progress);
     });
 
     await ffmpeg.start(videoPath);
     Object.assign(video, { path: videoPath.replace(VIDEO_DIR, "") });
-    await prisma.video.update({ where: { id: _video.id }, data: { supportActions: false } });
+    action && (await prisma.video.update({ where: { id: _video.id }, data: { supportActions: false } }));
 
     return { video, subtitle };
 }

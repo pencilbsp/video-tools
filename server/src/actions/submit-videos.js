@@ -21,7 +21,6 @@ export default async function submitVideos(videos, _options = {}) {
         const result = [];
         for (let initVideo of videos) {
             initVideo = await videoSchema.validate({ ...initVideo, mode: "video" }, { stripUnknown: true });
-            console.log(initVideo);
             let video = await prisma.video.findFirst({
                 where: {
                     vid: initVideo.vid,
