@@ -1,3 +1,5 @@
+import { existsSync } from "fs";
+
 export const DEFN_LIST = {
     "270P": "cmfv4ld",
     "360P": "cmfv4sd",
@@ -12,6 +14,7 @@ export const YOUKU_LANG_CODE = {
     th: "th",
     id: "id",
     ms: "ms",
+    kr: "kr",
     es: "es",
     cn: "default",
 };

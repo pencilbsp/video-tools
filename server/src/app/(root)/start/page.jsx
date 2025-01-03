@@ -18,6 +18,7 @@ export default function StartPage() {
           <Chip color="success" label="wetv.vip" clickable />
           <Chip color="success" label="iq.com" clickable />
           <Chip color="success" label="bilibili.tv" clickable />
+          <Chip color="success" label="youku.tv" clickable />
           <Chip color="warning" label="drive.google.com" clickable />
         </Stack>
       </Alert>

@@ -37,6 +37,7 @@ export const defaultVideoOptions = {
     downloadVideoQuality: "720P",
     targetSubtitleLanguage: "vi",
     createUploadSubfolder: false,
+    targetAudioLanguage: "default",
   },
 }
 
@@ -49,6 +50,7 @@ export const videoOptionsMapName = {
   ffmpegOptions: "Tuỳ chỉnh lệnh ffmpeg",
   upload: "Tự động tải lên Google Drive",
   targetSubtitleLanguage: "Ngôn ngữ phụ đề",
+  targetAudioLanguage: "Ngôn ngữ âm thanh",
   skipEncode: "Bỏ qua encode/chỉ tải video",
   videoScale: "Buộc encode video theo tỉ lệ",
   rootUploadFolderId: "ID thư mục gốc Google Drive",

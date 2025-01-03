@@ -3,9 +3,9 @@ import EventEmitter from "events";
 import { mkdir } from "fs/promises";
 import { basename, join, parse } from "path";
 
-import { downloadFile } from "../../../libs/download.js";
-import { extractPssh, extractWVKey, generateChallenge, mergeToFile, mixVideoWithAudio, parsePssh, widevineDecrypt } from "../../..//libs/widevine.js";
 import { USER_AGENT } from "@/configs.js";
+import { downloadFile } from "@/libs/download.js";
+import { extractPssh, generateChallenge, mergeToFile, mixVideoWithAudio, parsePssh, widevineDecrypt } from "@/libs/widevine.js";
 
 /**
  * Cảm ơn thông tin rất quan trọng từ
@@ -27,7 +27,7 @@ export default class IqDRM extends EventEmitter {
         this.m3u8 = JSON.parse(m3u8String);
     }
 
-    #createGroups = (files) =>
+    createGroups = (files) =>
         files.reduce((prev, current) => {
             const sourceId = current.file_name.split("?")[0].split("/").slice(-1)[0].split(".")[0];
 
@@ -58,13 +58,13 @@ export default class IqDRM extends EventEmitter {
             return prev;
         }, []);
 
-    #findWVKey = (kid) => {
+    findWVKey = (kid) => {
         const key = this.wvKeys.find((key) => key.kid === kid);
         return key.kid + ":" + key.k;
     };
     // #findWVKey = (keyId) => this.wvKeys.find((key) => (key.key ?? key).startsWith(keyId));
 
-    #extractWVKey = async (pssh) => {
+    extractWVKey = async (pssh) => {
         if (this.wvKeys.length > 0) return;
         const { session, challenge } = await generateChallenge(pssh);
         const response = await fetch(this.drm.wvlhost, {
@@ -82,7 +82,7 @@ export default class IqDRM extends EventEmitter {
 
     // #showProgress = (message, percent) => process.stdout.write(`${message}: ${percent.toFixed(2)}%\r`)
 
-    #downloadSegments = async (filePath, segments, initCodec, wvKey) => {
+    downloadSegments = async (filePath, segments, initCodec, wvKey) => {
         const paths = [];
         const { ext, dir } = parse(filePath);
         const initCodecBuffer = Buffer.from(initCodec, "base64");
@@ -99,7 +99,7 @@ export default class IqDRM extends EventEmitter {
             // const callback = ({ percent }) => this.#showProgress(`Đang tải xuống [${segmentName}]`, percent)
 
             await downloadFile(segment.url, segmentPath, {}, initCodecBuffer, options);
-            await widevineDecrypt(segmentPath, wvKey);
+            const segmentPathDec = await widevineDecrypt(segmentPath, wvKey);
 
             this.count++;
             const percent = (this.count / this.totalSegment) * 100;
@@ -107,17 +107,19 @@ export default class IqDRM extends EventEmitter {
             this.progress.message = `Đang tải xuống ${this.count}/${this.totalSegment} phân đoạn`;
             this.emit("progress", this.progress);
 
-            paths.push(segmentPath);
+            paths.push(segmentPathDec);
         }
 
         this.progress.message = `Đang ghép các phân đoạn => [${basename(filePath)}]`;
         this.emit("progress", this.progress);
         await mergeToFile(filePath, paths);
+
+        return filePath;
     };
 
     download = async (filePath, types = ["video", "audio"]) => {
         const { dir } = parse(filePath);
-        if (!existsSync(dir)) await mkdir(dir);
+        if (!existsSync(dir)) await mkdir(dir, { recursive: true });
 
         const files = { audio: null, video: null };
 
@@ -136,8 +138,7 @@ export default class IqDRM extends EventEmitter {
             const contentExt = _type === "audio" ? ".aac" : ".mp4";
             const contentPath = join(dir, content.name + contentExt);
 
-            await this.#downloadSegments(contentPath, content.segments, content.initCodec, content.wvKey);
-            files[_type] = contentPath;
+            files[_type] = await this.downloadSegments(contentPath, content.segments, content.initCodec, content.wvKey);
         }
 
         this.progress.message = `Đang ghép video và audio => [${basename(filePath)}]`;
@@ -151,7 +152,7 @@ export default class IqDRM extends EventEmitter {
             this.emit("progress", this.progress);
 
             const track = this.m3u8.payload.wm_a[trackName];
-            const segments = this.#createGroups(track.files);
+            const segments = this.createGroups(track.files);
 
             const keyId = track["key_id"];
             const initCodec = track["codec_init"];
@@ -164,8 +165,8 @@ export default class IqDRM extends EventEmitter {
             this.progress.message = `Đang trính xuất widevine key [${trackName}]`;
             this.emit("progress", this.progress);
 
-            await this.#extractWVKey(parsePssh(pssh));
-            const wvKey = this.#findWVKey(keyId);
+            await this.extractWVKey(parsePssh(pssh));
+            const wvKey = this.findWVKey(keyId);
 
             this.progress.message = `Trích xuất widevine key [${trackName}] => ${wvKey}`;
             this.emit("progress", this.progress);

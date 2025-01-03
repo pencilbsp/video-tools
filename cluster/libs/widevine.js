@@ -1,17 +1,18 @@
 import { join, basename, parse } from "path";
 import { writeFile, unlink, readFile } from "fs/promises";
 
-import "./widevine/protobuf.min.js";
-import "./widevine/license_protocol.js";
+import "@/libs/widevine/protobuf.min.js";
+import "@/libs/widevine/license_protocol.js";
 import "node-forge";
 
 import exec from "./exec.js";
 import { Session } from "./widevine/license.js";
+import { waiting_file_exists } from "./file.js";
 import { WidevineDevice } from "./widevine/device.js";
 import { base64toUint8Array, uint8ArrayToBase64 } from "./widevine/util.js";
 import { GETWVKEYS_API, GETWVKEYS_API_KEY, ROOT_DIR, USER_AGENT, WD_NAME } from "../configs.js";
 
-const { LicenseType, SignedMessage, LicenseRequest } = protobuf.roots.default.license_protocol;
+const { LicenseType } = protobuf.roots.default.license_protocol;
 
 function base64ToHex(base64String) {
     const binaryBuffer = Buffer.from(base64String, "base64"); // Decode Base64 thành Buffer
@@ -68,8 +69,10 @@ export async function widevineDecrypt(videoPath, wvKey) {
 
     await exec(`ffmpeg -i "${decryptedVideoPath}" -y -map_metadata -1 -c copy ${videoPath}`);
 
-    await unlink(decryptedVideoPath);
-    return videoPath;
+    await waiting_file_exists(decryptedVideoPath);
+
+    await unlink(videoPath);
+    return decryptedVideoPath;
 }
 
 export async function mergeToFile(filePath, filePaths) {
@@ -78,7 +81,7 @@ export async function mergeToFile(filePath, filePaths) {
     const content = filePaths.map((path) => `file '${basename(path)}'`).join("\n");
     await writeFile(fileListPath, content);
 
-    await exec(`ffmpeg -f concat -i "${basename(fileListPath)}" -y -c copy ${basename(filePath)}`, { cwd });
+    await exec(`ffmpeg -f concat -i "${fileListPath}" -y -c copy "${filePath}"`);
 
     await unlink(fileListPath);
     for (const path of filePaths) await unlink(path);
@@ -86,6 +89,7 @@ export async function mergeToFile(filePath, filePaths) {
 
 export async function mixVideoWithAudio(outputFile, videoPath, audioPath) {
     await exec(`ffmpeg -i "${videoPath}" -i ${audioPath} -y -c copy ${outputFile}`);
+    await waiting_file_exists(outputFile);
     await unlink(videoPath);
     await unlink(audioPath);
 }

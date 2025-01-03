@@ -17,6 +17,7 @@ import { formatDuration } from "@/libs/format"
 import useOutsideClick from "@/hooks/useOutsideClick"
 // redux
 import { useDispatch, videoParserSlice, addVideoToQueue } from "@/libs/redux"
+import { options } from "numeral"
 
 // ----------------------------------------------------------------------
 

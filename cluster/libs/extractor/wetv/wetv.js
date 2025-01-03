@@ -3,11 +3,11 @@ import { join } from "path"
 import { existsSync } from "fs"
 import { mkdir } from "fs/promises"
 
-import prisma from "../../../libs/prisma.js"
-import Cookie from "../../../libs/cookie.js"
-import FFmpeg from "../../../libs/ffmpeg.js"
-import { downloadFile } from "../../../libs/download.js"
-import { VIDEO_DIR, USER_AGENT } from "../../../configs.js"
+import prisma from "@/libs/prisma.js"
+import Cookie from "@/libs/cookie.js"
+import FFmpeg from "@/libs/ffmpeg.js"
+import { downloadFile } from "@/libs/download.js"
+import { VIDEO_DIR, USER_AGENT } from "@/configs.js"
 import { isWetv, getCKey, DEFN_LIST, generateGuid, WETV_LANG_CODE as LANG_CODE, getVideoQuality } from "./helper.js"
 
 export default async function wetvExtract(_video, progressCallback) {
@@ -85,7 +85,7 @@ export default async function wetvExtract(_video, progressCallback) {
   const response = await fetch("https://play.wetv.vip/getvinfo?" + query, { headers })
   const text = await response.text()
 
-  let QZOutputJson = null
+  // let QZOutputJson = null
   const data = eval(text)
 
   if (!data.vl && data.msg) throw new Error(data.msg)

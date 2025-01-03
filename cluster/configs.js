@@ -1,10 +1,5 @@
-import { promisify } from "util";
 import { fileURLToPath } from "url";
-import _serialNumber from "serial-number";
 import { join, resolve, dirname } from "path";
-
-_serialNumber.preferUUID = true;
-const serialNumber = promisify(_serialNumber);
 
 // Lấy đường dẫn tệp hiện tại
 const __filename = fileURLToPath(import.meta.url);
@@ -49,7 +44,5 @@ export const M3U8_DIR = join(PUBLIC_DIR, "m3u8");
 export const TMP_DIR = join(PUBLIC_DIR, "tmp");
 
 export const VIDEO_DIR = join(PUBLIC_DIR, "video");
-
-export const getClusterSerial = () => serialNumber();
 
 export const START_TIME = new Date();
