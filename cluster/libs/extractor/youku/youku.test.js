@@ -6,29 +6,23 @@ import { DEFN_LIST } from "./helper";
 const videoTest = {
     id: "1235",
     name: "test video",
-    cookieId: "6777c54f4a3a1e7b0295ea43",
-    nativeUrl: "https://www.youku.tv/v/v_show/id_XNjQ0NDYxNTAwOA==.html",
+    // cookieId: "6777c54f4a3a1e7b0295ea43",
+    nativeUrl: "https://www.youku.tv/v/v_show/id_XNTg4NjQ3OTYyMA==.html",
     options: {
         subtitleType: "ass",
         targetAudioLanguage: "vi",
         targetSubtitleLanguage: "vi",
-        downloadVideoQuality: "1080P",
+        downloadVideoQuality: "720P",
     },
 };
 
-// test(
-//     "YOUKU EXTRACT",
-//     async () => {
-//         const result = await youkuExtract(videoTest);
+test(
+    "YOUKU EXTRACT",
+    async () => {
+        const result = await youkuExtract(videoTest);
 
-//         // expect(result.subtitle.code).toBe("vi");
-//         // expect(result.video["stream_type"]).toBe(DEFN_LIST["720P"]);
-//     },
-//     { timeout: 30 * 60 * 1000 }
-// );
-
-try {
-    const result = await youkuExtract(videoTest);
-} catch (error) {
-    console.log(error);
-}
+        expect(result.subtitle.code).toBe("vi");
+        expect(result.video["stream_type"]).toBe(DEFN_LIST["720P"]);
+    },
+    { timeout: 30 * 60 * 1000 },
+);
