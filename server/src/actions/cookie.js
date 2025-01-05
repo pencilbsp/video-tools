@@ -43,6 +43,7 @@ export async function createCookie(data) {
         const values = data.cookie.filter((c) => c.name && c.value && c.domain);
 
         let site = values[0].domain;
+        if (site.startsWith(".www")) site = site.replace(".www", "");
         if (site.startsWith(".")) site = site.replace(".", "");
 
         if (data.id) {
