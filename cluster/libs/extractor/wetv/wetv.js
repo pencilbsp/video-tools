@@ -99,7 +99,7 @@ export default async function wetvExtract(_video, progressCallback, action = tru
     if (data.preview < duration) throw new Error("Video này yêu cầu tài khoản VIP");
 
     const videoList = data.fl.fi;
-    const sources = data.vl.vi[0].ul.ui.map((u) => u.url + u.hls.pt);
+    const sources = data.vl.vi[0].ul.ui.map((u) => u.url + u?.hls?.pt || "");
 
     const subtitles = data.sfl.fi.map((sub) => {
         const index = Object.values(LANG_CODE).indexOf(sub.langId);

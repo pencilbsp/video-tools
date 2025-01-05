@@ -229,7 +229,8 @@ function toList(origin, nodes) {
         const vid = video.data.action.value;
         const isTrailer = video.data.videoType !== "正片";
         const nativeUrl = `${origin}/v/v_show/id_${vid}.html`;
-        const requireVip = ["VIP"].includes(video.data?.mark?.data?.text);
+        const requireVip = video.data?.mark?.data?.color === "GOLDEN";
+        // const requireVip = ["VIP", "TVOD"].includes(video.data?.mark?.data?.text);
         return {
             vid: video.data.action.value,
             name: video.data.title,
