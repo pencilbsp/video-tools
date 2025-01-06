@@ -3,12 +3,12 @@ import { expect, test } from "bun:test";
 import { wetvExtract, DEFN_LIST } from "./index";
 
 const testUrl =
-    "https://wetv.vip/en/play/sgynhsgc43q8mtg-Guardians%20of%20the%20Dafeng/j4100chcwca-EP01%3A%20Guardians%20of%20the%20Dafeng";
+    "https://wetv.vip/vi/play/sgynhsgc43q8mtg-Đại%20Phụng%20Đả%20Canh%20Nhân/p4100xx8ko6-EP19%3A%20Đại%20Phụng%20Đả%20Canh%20Nhân";
 
 const testVideo = {
-    vid: "j4100chcwca",
+    vid: "p4100xx8ko6",
     id: "6571be67231006bce9714b3c",
-    name: "Guardians of the Dafeng 01",
+    name: "Đại Phụng Đả Canh Nhân 19",
     options: {
         subtitleType: "srt",
         downloadVideoQuality: "720P",
@@ -16,12 +16,13 @@ const testVideo = {
     },
     nativeUrl: testUrl,
     userId: "65631af7562ba00fa726d8f6",
+    cookieId: "656c21f2030a554f8cf02ed7",
     updatedAt: "2023-12-07T12:55:12.768Z",
     createdAt: "2023-12-07T12:45:27.443Z",
 };
 
 test(
-    "IQ EXTRACT",
+    "WETV EXTRACT",
     async () => {
         const result = await wetvExtract(testVideo, null, false);
 

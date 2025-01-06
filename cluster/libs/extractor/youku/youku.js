@@ -111,7 +111,7 @@ export default async function youkuExtract(_video, progressCallback) {
         }
 
         // Check DRM
-        if (video && video["stream_ext"] && video["stream_ext"]["uri"].includes("drm-license.youku")) {
+        if (video && video["stream_ext"] && video["stream_ext"]?.["uri"]?.includes("drm-license.youku")) {
             const drm = new YoukuDRM(video["m3u8_url"], vid, video["stream_ext"], video["stream_ext"]["hls_duration"]);
 
             drm.on("progress", (progress) => {
@@ -120,6 +120,8 @@ export default async function youkuExtract(_video, progressCallback) {
 
             await drm.parse(options.targetAudioLanguage || "guoyu");
             await drm.download(videoPath);
+        } else {
+            return console.log("NO DRM");
         }
 
         Object.assign(video, { path: videoPath.replace(VIDEO_DIR, "") });
