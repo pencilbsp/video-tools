@@ -106,7 +106,7 @@ export default async function youkuExtract(_video, progressCallback) {
         if (subtitle) {
             const subtitleName = `${fileName}.${subtitle.code}.${subtitleType}`;
             const subtitlePath = join(videoDir, subtitleName);
-            await downloadFile(subtitle.url, subtitlePath);
+            await downloadFile(subtitle.url, subtitlePath, undefined, undefined, { force: true });
             Object.assign(subtitle, { path: subtitlePath.replace(VIDEO_DIR, "") });
         }
 
