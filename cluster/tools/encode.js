@@ -102,14 +102,14 @@ class EncodeTask {
             });
 
             // Nếu không có video encode các video không chỉ định cluster hoặc không có thì bỏ qua
-            if (!video)
-                video = await prisma.video.findFirst({
-                    where: {
-                        userId: this.userId,
-                        status: "downloaded",
-                    },
-                    ...prismaQuery,
-                });
+            // if (!video)
+            //     video = await prisma.video.findFirst({
+            //         where: {
+            //             userId: this.userId,
+            //             status: "downloaded",
+            //         },
+            //         ...prismaQuery,
+            //     });
 
             if (!video || !video.paths) return;
 
