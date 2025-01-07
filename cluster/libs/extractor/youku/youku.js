@@ -7,7 +7,7 @@ import { closeResources, DEFN_LIST, YOUKU_LANG_CODE as LANG_CODE } from "./helpe
 
 import YoukuDRM from "./drm";
 import prisma from "@/libs/prisma";
-import { VIDEO_DIR } from "@/configs";
+import { CHROME_PATH, VIDEO_DIR } from "@/configs";
 import { downloadFile } from "@/libs/download";
 
 export const SUPPORT_SUBTITLE_TYPES = ["ass"];
@@ -35,16 +35,23 @@ export default async function youkuExtract(_video, progressCallback) {
             ? DEFN_LIST[options.downloadVideoQuality]
             : DEFN_LIST["720P"];
 
-        const real = await connect({
+        const realOptions = {
             args: [],
             skipTarget: [],
             turnstile: true,
             headless: "auto",
+            customConfig: {},
             connectOption: {
                 defaultViewport: null,
             },
             fingerprint: true,
-        });
+        };
+
+        if (CHROME_PATH) {
+            realOptions.customConfig.chromePath = CHROME_PATH;
+        }
+
+        const real = await connect(realOptions);
         page = real.page;
         browser = real.browser;
 
