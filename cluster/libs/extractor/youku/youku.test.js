@@ -6,8 +6,8 @@ import { DEFN_LIST } from "./helper";
 const videoTest = {
     id: "1235",
     name: "test video",
-    // cookieId: "6777c54f4a3a1e7b0295ea43",
-    nativeUrl: "https://www.youku.tv/v/v_show/id_XNTg4NjQ3OTYyMA==.html",
+    cookieId: "67790c508b0622a1ba072524",
+    nativeUrl: "https://www.youku.tv/v/v_show/id_XNTk3NzA3NDMyMA==.html",
     options: {
         subtitleType: "ass",
         targetAudioLanguage: "vi",

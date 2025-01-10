@@ -48,6 +48,38 @@ export default async function youkuExtract(_video, progressCallback) {
         page = real.page;
         browser = real.browser;
 
+        // Bao bọc hàm window._sce_dlgtqred khi nó được định nghĩa
+        await page.evaluateOnNewDocument(() => {
+            window.drmKeys = [];
+            Object.defineProperty(window, "_sce_dlgtqred", {
+                configurable: true,
+                enumerable: true,
+                set(value) {
+                    if (typeof value === "function") {
+                        const originalFunction = value; // Lưu hàm gốc
+                        Object.defineProperty(window, "_sce_dlgtqred", {
+                            value: function (...args) {
+                                const key = {
+                                    R1: args[0],
+                                    result: null,
+                                    copyright_key: args[2],
+                                    encryptR_server: args[1],
+                                };
+                                key.result = originalFunction.apply(this, args);
+                                window.drmKeys.push(key);
+                                return key.result;
+                            },
+                            writable: true,
+                            configurable: true,
+                        });
+                    }
+                },
+                get() {
+                    return undefined; // Trả về undefined nếu truy cập trước khi khai báo
+                },
+            });
+        });
+
         if (_video.cookieId) {
             const cookie = await prisma.cookie.findUnique({ where: { id: _video.cookieId } });
 
@@ -68,6 +100,9 @@ export default async function youkuExtract(_video, progressCallback) {
         const { searchParams } = new URL(response.url());
         const callback = searchParams.get("callback");
         const json = JSON.parse(data.trim().slice(callback.length + 1, -1));
+
+        // Giả lập khai báo hàm và gọi từ Node.js
+        const drmKeys = await page.evaluate(() => window.drmKeys);
 
         await closeResources(page, browser);
 
@@ -111,17 +146,19 @@ export default async function youkuExtract(_video, progressCallback) {
         }
 
         // Check DRM
-        if (video && video["stream_ext"] && video["stream_ext"]?.["uri"]?.includes("drm-license.youku")) {
-            const drm = new YoukuDRM(video["m3u8_url"], vid, video["stream_ext"], video["stream_ext"]["hls_duration"]);
 
+        if (video && video["stream_ext"]) {
+            // console.log(video["drm_type"]);
+            // cbcs | copyrightDRM
+            const drm = new YoukuDRM(video["m3u8_url"], vid, video["stream_ext"], video["stream_ext"]["hls_duration"]);
             drm.on("progress", (progress) => {
                 if (progressCallback) progressCallback(progress);
             });
 
-            await drm.parse(options.targetAudioLanguage || "guoyu");
+            await drm.parse(options.targetAudioLanguage || "guoyu", drmKeys);
             await drm.download(videoPath);
         } else {
-            return console.log("NO DRM");
+            throw new Error("No DRM");
         }
 
         Object.assign(video, { path: videoPath.replace(VIDEO_DIR, "") });

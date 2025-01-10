@@ -56,7 +56,7 @@ export default class YoukuDRM extends EventEmitter {
         return audioList.find((audio) => audio.default) ?? audioList[0];
     };
 
-    async parse(audio_lang) {
+    async parse(audio_lang, drmKeys = []) {
         const m3u8 = await this.loadM3u8(this.m3u8);
         if (m3u8.playlists.length === 0) throw new Error("M3u8 không chứa luồng video nào");
 
@@ -75,34 +75,43 @@ export default class YoukuDRM extends EventEmitter {
             this.files[type].m3u8 = m3u8;
 
             const wv = m3u8.contentProtection["com.widevine.alpha"];
-            this.files[type].kid = wv["attributes"].keyId;
+            const kid = wv["attributes"].keyId;
+            this.files[type].kid = kid;
 
-            if (!this.wvKeys.has(wv["attributes"].keyId)) {
-                const { pathname, searchParams, origin } = new URL(this.drm.uri);
-                const payload = searchParams;
-                payload.set("drmType", "widevine");
+            if (this.wvKeys.has(kid)) continue;
 
-                const { challenge, session } = await generateChallenge(wv.pssh);
-
-                payload.set("licenseRequest", uint8ArrayToBase64(challenge));
-
-                const response = await fetch(origin + pathname, {
-                    method: "POST",
-                    body: payload.toString(),
-                    headers: {
-                        "user-agent": USER_AGENT,
-                        "content-type": "application/x-www-form-urlencoded",
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error("Không thể tải xuống key widevine");
-                }
-
-                const result = await response.json();
-                const keys = await session.parseLicense(base64toUint8Array(result.data));
-                this.wvKeys.set(wv["attributes"].keyId, keys);
+            if (Array.isArray(drmKeys) && drmKeys.length > 0) {
+                const key = drmKeys.find(({ copyright_key }) => this.drm["copyright_key"] === copyright_key);
+                const k = key.result.map((num) => num.toString(16).padStart(2, "0")).join("");
+                this.wvKeys.set(kid, [{ k, kid }]);
+                continue;
             }
+
+            const { pathname, searchParams, origin } = new URL(this.drm.uri);
+            const payload = searchParams;
+            payload.set("drmType", "widevine");
+
+            const { challenge, session } = await generateChallenge(wv.pssh);
+
+            payload.set("licenseRequest", uint8ArrayToBase64(challenge));
+
+            const response = await fetch(origin + pathname, {
+                method: "POST",
+                body: payload.toString(),
+                headers: {
+                    "user-agent": USER_AGENT,
+                    "content-type": "application/x-www-form-urlencoded",
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error("Không thể tải xuống key widevine");
+            }
+
+            const result = await response.json();
+
+            const keys = await session.parseLicense(base64toUint8Array(result.data));
+            this.wvKeys.set(kid, keys);
         }
     }
 
@@ -119,7 +128,7 @@ export default class YoukuDRM extends EventEmitter {
                 "--allow-unplayable-formats",
                 // "--verbose",
                 "--hls-use-mpegts",
-                platform() === "win32" ? uri : "'" + uri + "'",
+                uri,
                 "-o",
                 output_path,
             ];
@@ -131,6 +140,7 @@ export default class YoukuDRM extends EventEmitter {
             }
 
             // Chạy yt-dlp
+            // console.log(command + " " + args.join(" "));
             const process = spawn(command, args);
 
             let current = 0;
