@@ -76,16 +76,16 @@ class DownloadTask {
                 },
             });
 
-            if (!video)
-                video = await prisma.video.findFirst({
-                    where: {
-                        status: "pending",
-                        userId: this.userId,
-                    },
-                    orderBy: {
-                        createdAt: "desc",
-                    },
-                });
+            // if (!video)
+            //     video = await prisma.video.findFirst({
+            //         where: {
+            //             status: "pending",
+            //             userId: this.userId,
+            //         },
+            //         orderBy: {
+            //             createdAt: "desc",
+            //         },
+            //     });
 
             // Nếu không có video thì bỏ qua
             if (!video || !video.nativeUrl) return;

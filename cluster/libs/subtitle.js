@@ -1,7 +1,7 @@
 import subsrt from "subsrt";
 import { existsSync } from "fs";
 import { join, parse } from "path";
-import { readFile, writeFile } from "fs/promises";
+import { readFile } from "fs/promises";
 
 import exec from "./exec.js";
 
@@ -126,7 +126,7 @@ export async function mergeStyle(stylePath, subtitlePath, styleName) {
     const lines = parseAssSubtitle(subtitleContent).subtitles;
     lines.forEach((line) => subtitle.addLine(line));
 
-    await writeFile(subtitlePath, subtitle.toString());
+    await Bun.write(subtitlePath, subtitle.toString());
 }
 
 function secToTimer(sec) {
@@ -155,6 +155,6 @@ export async function jsonToSrt(url, subtitlePath, headers = {}) {
         srtContent += line.content + "\n\n";
     });
 
-    await writeFile(subtitlePath, srtContent);
+    await Bun.write(subtitlePath, srtContent);
     return subtitlePath;
 }
