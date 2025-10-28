@@ -47,7 +47,19 @@ export default class FFmpeg extends EventEmitter {
     outputFile = null;
     inputOptions = [];
     progress = { percent: 0, status: "" };
-    options = ["-c:v libx264", "-strict -2", "-c:a copy"];
+    options = [
+        "-c:v libx264",
+        "-profile:v high",
+        "-level 4.0",
+        "-pix_fmt yuv420p",
+        "-c:a aac",
+        "-q:a 2",
+        "-movflags +faststart",
+        "-crf 28",
+        "-tune animation",
+        "-preset medium",
+    ];
+    // options = ["-c:v libx264", "-strict -2", "-c:a copy"];
 
     constructor(id, input, inputOptions, outputOptions) {
         super();
