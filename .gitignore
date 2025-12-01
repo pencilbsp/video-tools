@@ -174,3 +174,5 @@ public/assets
 
 # Finder (MacOS) folder config
 .DS_Store
+
+assets/
