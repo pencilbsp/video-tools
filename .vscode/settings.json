@@ -1,3 +1,7 @@
 {
-  "eslint.workingDirectories": ["./server", "./cluster"]
+  "eslint.workingDirectories": [
+    "./server",
+    "./cluster"
+  ],
+  "prisma.pinToPrisma6": true
 }

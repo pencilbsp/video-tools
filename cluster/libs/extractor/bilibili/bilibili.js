@@ -1,19 +1,21 @@
 import slug from "slug";
 import { join } from "path";
+import { JSDOM } from "jsdom";
 import { unlink } from "fs/promises";
 
 import FFmpeg from "../../../libs/ffmpeg.js";
 import Cookie from "../../../libs/cookie.js";
 import prisma from "../../../libs/prisma.js";
+import { QN_MAP, BILI_LANG_CODE } from "./helper.js";
 import { jsonToSrt } from "../../../libs/subtitle.js";
 import { downloadFile } from "../../../libs/download.js";
 import { VIDEO_DIR, USER_AGENT } from "../../../configs.js";
-import { QN_MAP, API_URL, BILI_LANG_CODE } from "./helper.js";
+// import { de } from "date-fns/locale";
 
-const platform = "web";
-const s_locale = "vi_VN";
-const spm_id = "bstar-web.pgc-video-detail.0.0";
-const from_spm_id = "bstar-web.pgc-video-detail.episode.all";
+// const platform = "web";
+// const s_locale = "vi_VN";
+// const spm_id = "bstar-web.pgc-video-detail.0.0";
+// const from_spm_id = "bstar-web.pgc-video-detail.episode.all";
 
 export default async function biliExtract(_video, progressCallback) {
     // const url = _video.nativeUrl
@@ -32,51 +34,63 @@ export default async function biliExtract(_video, progressCallback) {
         }
     }
 
+    // console.log("Fetching video data from Bilibili...", headers);
+
     const quality = QN_MAP[options.downloadVideoQuality] ?? 64;
     const subtitleLang = BILI_LANG_CODE[options.targetSubtitleLanguage] ?? "vi";
 
-    const videoQuery = new URLSearchParams({
-        s_locale,
-        platform,
-        ep_id: _video.vid,
-        qn: quality,
-        type: 0,
-        device: "wap",
-        tf: 0,
-        spm_id,
-        from_spm_id,
-    });
+    const response = await fetch(url, { headers });
+    const html = await response.text();
 
-    let response = await fetch(`${API_URL}/playurl?${videoQuery.toString()}`, { headers });
-    let data = await response.json();
-    const video = data.data.playurl.video.find((video) => video["video_resource"].quality === quality);
-    const audio = data.data.playurl["audio_resource"].find((audio) => audio.quality === video["audio_quality"]);
+    const dom = new JSDOM(html);
+    const scriptTags = Array.from(dom.window.document.querySelectorAll("script"));
+    const initialStateScript = scriptTags.find((tag) => tag.textContent.includes("window.__initialState"));
+
+    if (!initialStateScript) throw new Error("Không thể tìm thấy dữ liệu video");
+
+    // Extract the JSON data from the script content
+    const scriptContent = initialStateScript.textContent;
+    var window = {};
+
+    eval(scriptContent);
+
+    const playerState = window.__initialState.player;
+    if (!playerState) throw new Error("Không thể tìm thấy dữ liệu video");
+
+    const videoTyepes = Object.keys(playerState.playUrl);
+
+    if (!videoTyepes.length) throw new Error("Không thể tìm thấy dữ liệu video");
+
+    const videoType = videoTyepes[0];
+    const videoData = playerState.playUrl[videoType];
+
+    const video = videoData.video.find((v) => v.id === quality);
+    const audio = videoData.audio.find((audio) => audio.quality === video["audio_quality"]);
+
     if (!video || !audio) throw new Error("Không tìm thấy dữ liệu video hoặc âm thanh");
 
-    const subtitleQuery = new URLSearchParams({ s_locale, platform, episode_id: _video.vid, spm_id, from_spm_id });
-    response = await fetch(`${API_URL}/v2/subtitle?${subtitleQuery.toString()}`, { headers });
-    data = await response.json();
-
-    let subtitle = data.data["video_subtitle"].find((subtitle) => (subtitle["lang_key"] = subtitleLang));
-
+    let subtitle = playerState.subtitleList.find((subtitle) => subtitle.key === subtitleLang);
     const videoDir = join(VIDEO_DIR, _video.id);
     const videoName = slug(_video.name, { replacement: "." });
     let subType = ["srt", "ass"].includes(options.subtitleType) ? options.subtitleType : "ass";
 
     if (subtitle) {
-        if (!subtitle[subType]) subType = Object.keys(subtitle).find((key) => subtitle[key]?.url);
-        subtitle = subtitle[subType];
-
         const subtitleName = `${videoName}.${subtitleLang}.${subType}`;
         const subtitlePath = join(videoDir, subtitleName);
 
-        if (subType === "srt") {
-            await jsonToSrt(subtitle.url, subtitlePath);
-        } else {
-            await downloadFile(subtitle.url, subtitlePath);
+        switch (subType) {
+            case "srt":
+                await jsonToSrt(subtitle.url, subtitlePath);
+                subtitle.path = subtitlePath.replace(VIDEO_DIR, "");
+                break;
+            case "ass":
+                await downloadFile(subtitle.assUrl, subtitlePath);
+                subtitle.path = subtitlePath.replace(VIDEO_DIR, "");
+                break;
+            default:
+                subtitle = null;
+                break;
         }
-
-        subtitle.path = subtitlePath.replace(VIDEO_DIR, "");
     }
 
     const qualityName = getFileName(QN_MAP, quality);
@@ -96,10 +110,10 @@ export default async function biliExtract(_video, progressCallback) {
         }
     };
 
-    await downloadFile(audio.url, audioPath, headersObject, null, {}, handleProgress);
+    await downloadFile(audio["base_url"], audioPath, headersObject, null, {}, handleProgress);
     count += 50;
 
-    await downloadFile(video["video_resource"].url, videoPath, headersObject, null, {}, handleProgress);
+    await downloadFile(video["base_url"], videoPath, headersObject, null, {}, handleProgress);
 
     const ffmpeg = new FFmpeg(_video.id, videoPath, [], ["-c copy"]);
     ffmpeg.addInput(audioPath);
